@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model Incident {
+  id           String         @id @default(cuid())
+  scenarioId   String
+  alertPayload Json
+  severity     String?
+  service      String?
+  status       String         @default("pending")
+  createdAt    DateTime       @default(now())
+  tasks        IncidentTask[]
+  postmortem   Postmortem?
+}
+
+model IncidentTask {
+  id            String        @id @default(cuid())
+  incidentId    String
+  incident      Incident      @relation(fields: [incidentId], references: [id])
+  type          String
+  dependsOn     String[]
+  status        String        @default("pending")
+  assignedAgent String
+  startedAt     DateTime?
+  completedAt   DateTime?
+  result        AgentResult?
+}
+
+model AgentResult {
+  id              String       @id @default(cuid())
+  taskId          String       @unique
+  task            IncidentTask @relation(fields: [taskId], references: [id])
+  agentName       String
+  input           Json
+  output          Json
+  confidenceScore Float?
+  durationMs      Int?
+  createdAt       DateTime     @default(now())
+}
+
+model Postmortem {
+  id               String   @id @default(cuid())
+  incidentId       String   @unique
+  incident         Incident @relation(fields: [incidentId], references: [id])
+  severity         String
+  affectedService  String
+  timeline         Json
+  rootCause        String
+  blastRadius      Json
+  remediationSteps Json
+  lessonsLearned   String
+  actionItems      Json
+  draft            String
+  status           String   @default("draft")
+  createdAt        DateTime @default(now())
+}
