@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "incident-response": {
+      "command": "npx",
+      "args": ["tsx", "--require", "dotenv/config", "mcp-server/index.ts"],
+      "cwd": "${workspaceFolder}"
+    }
+  }
+}
